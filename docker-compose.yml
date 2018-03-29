@@ -1,9 +1,24 @@
-version: '2'
+version: '3'
+
 services:
-  php:
-    image: yiisoftware/yii2-php:7.1-apache
-    volumes:
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
-      - ./:/app:delegated
+  nginx:
+    image: nginx:latest
     ports:
-      - '8000:80'
+      - 5000:80
+    volumes:
+      - ./:/app
+      - ./docker/nginx/app.conf:/etc/nginx/conf.d/app.conf
+  php-fpm:
+    build: ./docker/fpm
+    volumes:
+      - ./:/app
+    env_file:
+      - ./docker/fpm/.env
+  mysql:
+    image: percona:5.7.19
+    ports:
+      - 6000:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: project
+      MYSQL_ROOT_HOST: '%'
